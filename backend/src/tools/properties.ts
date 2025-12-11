@@ -180,15 +180,40 @@ export async function calculatePropertySavings(input: unknown, _userId?: number)
   try {
     const validatedInput = CalculateSavingsSchema.parse(input);
     
-    // Mock property for calculation
-    const mockProperty = {
-      property_price: validatedInput.price,
-      property_price_with_hbm: validatedInput.price * 0.98, // 2% Homebuyme advantage
-    } as Property;
+    const listPrice = validatedInput.price;
+    const buyerAgentFee = listPrice * 0.03; // 3% buyer's agent fee
+    
+    // Plan costs
+    const basicPlanCost = 499;
+    const premiumPlanCost = 899;
+    
+    // Net savings after plan fees
+    const netSavingsBasic = buyerAgentFee - basicPlanCost;
+    const netSavingsPremium = buyerAgentFee - premiumPlanCost;
 
-    const savings = calculateSavings(mockProperty);
+    const textContent = `For a ${formatPrice(listPrice)} home, HomeBuyMe's estimate looks like this:
 
-    const textContent = `HomeBuyMe helps you save up to 3% (or more!) when buying your next home — without sacrificing expert guidance or protection. Here's how it works:
+**List price:** ${formatPrice(listPrice)}
+
+**Buyer's agent fee avoided:** ${formatPrice(buyerAgentFee)} (3%)
+
+**Additional savings:** Available for offers with partner properties when you go with HomeBuyMe
+
+**Total estimated savings:** Buyer's agent fee + additional partner property savings
+
+---
+
+**Service plans (flat fees):**
+
+• **Basic: $499** – Guided offer + attorney review + eSign
+• **Premium: $899** – Priority review, live consults, and counter-offer support
+
+**So after fees, your net savings are roughly:**
+
+• **Basic:** About ${formatPrice(netSavingsBasic)}
+• **Premium:** About ${formatPrice(netSavingsPremium)}
+
+---
 
 💡 **The HomeBuyMe Advantage**
 
@@ -201,13 +226,7 @@ Every offer is reviewed by a real estate attorney before it's submitted — no g
 🚀 **Pay Only When You're Ready**
 No monthly fees. Just a flat one-time plan when you're ready to make an offer.
 
-💼 **Two Plan Options (WA & CA only)**
-• **Basic – $499**: Guided offer + attorney review + eSign
-• **Premium – $899**: Priority review, live consults, and counter-offer support
-
-🧮 **Example:**
-On a ${formatPrice(validatedInput.price)} home, you could save roughly ${formatPrice(savings.totalSavings)} —
-✨ ${formatPrice(savings.buyerAgentFee)} from skipping agent fees + ${formatPrice(savings.priceDifference)} from HomeBuyMe's price advantage.
+---
 
 **Ready to explore listings and see your savings in action?**
 
@@ -215,20 +234,28 @@ On a ${formatPrice(validatedInput.price)} home, you could save roughly ${formatP
 👉 [Learn How HomeBuyMe Works](https://homebuyme.com/about/)
 👉 [View Plans & Pricing](https://homebuyme.com/pricing/?utm_source_hbm=gpt-savings-info)
 
-Would you like me to show you live listings in Washington or California to see how much you could save?`;
+If you want, I can run the same math for a different price (e.g., $800K or $1.2M). Would you like me to show you live listings in Washington or California?`;
 
     const structuredContent = {
       success: true,
-      price: validatedInput.price,
-      savings,
-      formattedSavings: {
-        total: formatPrice(savings.totalSavings),
-        agentFee: formatPrice(savings.buyerAgentFee),
-        priceDifference: formatPrice(savings.priceDifference),
-      },
+      listPrice,
+      buyerAgentFee,
       plans: {
-        basic: { price: 499, description: 'Guided offer + attorney review + eSign' },
-        premium: { price: 899, description: 'Priority review, live consults, and counter-offer support' },
+        basic: { 
+          price: basicPlanCost, 
+          description: 'Guided offer + attorney review + eSign',
+          netSavings: netSavingsBasic,
+        },
+        premium: { 
+          price: premiumPlanCost, 
+          description: 'Priority review, live consults, and counter-offer support',
+          netSavings: netSavingsPremium,
+        },
+      },
+      formattedSavings: {
+        buyerAgentFee: formatPrice(buyerAgentFee),
+        netSavingsBasic: formatPrice(netSavingsBasic),
+        netSavingsPremium: formatPrice(netSavingsPremium),
       },
     };
 
