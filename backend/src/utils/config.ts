@@ -75,40 +75,22 @@ if (!rawWidgetHost) {
 
 // Normalize and build full widget URLs
 const normalizedBaseUrl = buildRenderUrl(rawWidgetHost);
-const normalizedPosterUrl = ensureComponentPath(
-  normalizedBaseUrl,
-  WIDGET_CONFIG.poster.componentFilename
-);
-const normalizedListUrl = ensureComponentPath(
-  normalizedBaseUrl,
-  WIDGET_CONFIG.list.componentFilename
-);
-const normalizedColorUrl = ensureComponentPath(
-  normalizedBaseUrl,
-  WIDGET_CONFIG.color.componentFilename
-);
 const normalizedPropertyUrl = ensureComponentPath(
   normalizedBaseUrl,
   WIDGET_CONFIG.property.componentFilename
 );
 
-if (rawWidgetHost && !normalizedPosterUrl) {
+if (rawWidgetHost && !normalizedPropertyUrl) {
   console.error(
     '[Config] MOVIE_POSTER_WIDGET_URL could not be normalized. Check the value:',
     rawWidgetHost
   );
 }
 
-// Export normalized URLs
-export const MOVIE_POSTER_WIDGET_URL = normalizedPosterUrl;
-export const MOVIE_LIST_WIDGET_URL = normalizedListUrl;
-export const COLOR_WIDGET_URL = normalizedColorUrl;
+// Export normalized URLs - Property widget only
 export const PROPERTY_WIDGET_URL = normalizedPropertyUrl;
 
 console.log('[Config] Widget URLs resolved:');
-console.log('[Config]   MOVIE_POSTER_WIDGET_URL:', MOVIE_POSTER_WIDGET_URL);
-console.log('[Config]   MOVIE_LIST_WIDGET_URL:', MOVIE_LIST_WIDGET_URL);
-console.log('[Config]   COLOR_WIDGET_URL:', COLOR_WIDGET_URL);
 console.log('[Config]   PROPERTY_WIDGET_URL:', PROPERTY_WIDGET_URL);
 
 /**

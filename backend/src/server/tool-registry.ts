@@ -5,58 +5,6 @@
 
 import { TOOL_NAMES } from '../config/constants.js';
 import {
-  searchMovies,
-  searchMoviesToolDefinition,
-  discoverMoviesWithFilters,
-  discoverMoviesToolDefinition,
-} from '../tools/search.js';
-import {
-  addToWatchlist,
-  removeFromWatchlist,
-  getWatchlist,
-  addToWatchlistToolDefinition,
-  removeFromWatchlistToolDefinition,
-  getWatchlistToolDefinition,
-} from '../tools/watchlist.js';
-import {
-  markAsWatched,
-  markAsWatchedBatch,
-  getWatchedMovies,
-  markAsWatchedToolDefinition,
-  markAsWatchedBatchToolDefinition,
-  getWatchedMoviesToolDefinition,
-} from '../tools/watched.js';
-import {
-  setPreferences,
-  getPreferences,
-  removePreferenceItem,
-  setPreferencesToolDefinition,
-  getPreferencesToolDefinition,
-  removePreferenceItemToolDefinition,
-} from '../tools/preferences.js';
-import {
-  getRecommendations,
-  getRecommendationsToolDefinition,
-} from '../tools/recommendations.js';
-import {
-  getMovieDetails as getMovieDetailsTool,
-  getMovieDetailsToolDefinition,
-} from '../tools/movieDetails.js';
-import {
-  getColorInfo,
-  getColorInfoToolDefinition,
-  generatePalette,
-  generatePaletteToolDefinition,
-  randomColors,
-  randomColorsToolDefinition,
-  convertColor,
-  convertColorToolDefinition,
-  saveFavoriteColor,
-  saveFavoriteColorToolDefinition,
-  getFavorites,
-  getFavoritesToolDefinition,
-} from '../tools/colors.js';
-import {
   searchProperties,
   searchPropertiesToolDefinition,
   calculatePropertySavings,
@@ -69,16 +17,7 @@ import {
   getFavoritePropertiesToolDefinition,
 } from '../tools/properties.js';
 
-/**
- * Check if any LLM API key is available
- */
-function isLLMAvailable(): boolean {
-  return !!(
-    process.env.OPENAI_API_KEY ||
-    process.env.ANTHROPIC_API_KEY ||
-    process.env.GEMINI_API_KEY
-  );
-}
+// Removed LLM check - not needed for property-only app
 
 /**
  * Serialize unknown errors (including AggregateError/TaskGroup-style) for safe logging + UI
@@ -108,31 +47,10 @@ function serializeError(err: unknown) {
 }
 
 /**
- * Get all tool definitions
- * Conditionally includes recommendations tool only if LLM API key is available
+ * Get all tool definitions - Property tools only
  */
 export function getToolDefinitions() {
   const tools = [
-    searchMoviesToolDefinition,
-    discoverMoviesToolDefinition,
-    addToWatchlistToolDefinition,
-    removeFromWatchlistToolDefinition,
-    getWatchlistToolDefinition,
-    markAsWatchedToolDefinition,
-    markAsWatchedBatchToolDefinition,
-    getWatchedMoviesToolDefinition,
-    setPreferencesToolDefinition,
-    getPreferencesToolDefinition,
-    removePreferenceItemToolDefinition,
-    getMovieDetailsToolDefinition,
-    // Color tools
-    getColorInfoToolDefinition,
-    generatePaletteToolDefinition,
-    randomColorsToolDefinition,
-    convertColorToolDefinition,
-    saveFavoriteColorToolDefinition,
-    getFavoritesToolDefinition,
-    // Property tools
     searchPropertiesToolDefinition,
     calculateSavingsToolDefinition,
     getPropertyDetailsToolDefinition,
@@ -140,13 +58,7 @@ export function getToolDefinitions() {
     getFavoritePropertiesToolDefinition,
   ];
 
-  // Only include recommendations tool if LLM is configured
-  if (isLLMAvailable()) {
-    tools.push(getRecommendationsToolDefinition);
-    console.log('✅ LLM configured - recommendations tool enabled');
-  } else {
-    console.log('⚠️  No LLM API key found - recommendations tool disabled');
-  }
+  console.log('🏠 Homebuyme property tools loaded - 5 tools enabled');
 
   return tools;
 }
@@ -157,114 +69,6 @@ export function getToolDefinitions() {
 export async function callTool(name: string, args: any, userId?: number): Promise<any> {
   try {
     switch (name) {
-      case TOOL_NAMES.SEARCH_MOVIES:
-        return await searchMovies(args as any, userId);
-
-      case TOOL_NAMES.DISCOVER_MOVIES:
-        return await discoverMoviesWithFilters(args as any, userId);
-
-      case TOOL_NAMES.ADD_TO_WATCHLIST:
-        if (!userId) throw new Error('Authentication required');
-        return await addToWatchlist(args as any, userId);
-
-      case TOOL_NAMES.REMOVE_FROM_WATCHLIST:
-        if (!userId) throw new Error('Authentication required');
-        return await removeFromWatchlist(args as any, userId);
-
-      case TOOL_NAMES.GET_WATCHLIST:
-        if (!userId) throw new Error('Authentication required');
-        return await getWatchlist(userId);
-
-      case TOOL_NAMES.MARK_AS_WATCHED:
-        if (!userId) throw new Error('Authentication required');
-        return await markAsWatched(args as any, userId);
-
-      case TOOL_NAMES.MARK_AS_WATCHED_BATCH:
-        if (!userId) throw new Error('Authentication required');
-        return await markAsWatchedBatch(args as any, userId);
-
-      case TOOL_NAMES.GET_WATCHED_MOVIES:
-        if (!userId) throw new Error('Authentication required');
-        return await getWatchedMovies(args as any, userId);
-
-      case 'set_preferences':
-        if (!userId) throw new Error('Authentication required');
-        return await setPreferences(args as any, userId);
-
-      case TOOL_NAMES.GET_PREFERENCES:
-        if (!userId) throw new Error('Authentication required');
-        return await getPreferences(userId);
-
-      case 'remove_preference_item':
-        if (!userId) throw new Error('Authentication required');
-        return await removePreferenceItem(args as any, userId);
-
-      case TOOL_NAMES.GET_RECOMMENDATIONS:
-        if (!userId) throw new Error('Authentication required');
-        if (!isLLMAvailable()) {
-          throw new Error(
-            'Recommendations feature is not available. ' +
-            'Please configure at least one LLM API key (OPENAI_API_KEY, ANTHROPIC_API_KEY, or GEMINI_API_KEY).'
-          );
-        }
-        return await getRecommendations(args as any, userId);
-
-      case TOOL_NAMES.GET_MOVIE_DETAILS:
-        try {
-          const response = await getMovieDetailsTool(args as any, userId);
-          console.log('get_movie_details response preview', {
-            keys: Object.keys(response ?? {}),
-            _meta: '_meta' in response ? response._meta : undefined,
-          });
-          return response;
-        } catch (movieDetailsError) {
-          const debug = serializeError(movieDetailsError);
-          console.error('get_movie_details failed, returning soft error', {
-            args,
-            error: debug,
-          });
-          return {
-            content: [
-              {
-                type: 'text' as const,
-                text: 'Unable to load movie details right now.',
-              },
-            ],
-            structuredContent: {
-              success: false,
-              error: debug.message || 'Failed to load movie details',
-              errorDetails: debug,
-              // Helpful for client debugging/telemetry
-              tmdb_id: (args as any)?.tmdb_id,
-              httpStatusHint: 424,
-              hint:
-                'Likely one of the parallel subrequests (credits/images/metadata) failed. This is a soft error so the transport should not hard-fail.',
-            },
-            // Stay soft-fail to avoid 424 bubbling up to the connector/UI
-            isError: false,
-          };
-        }
-
-      case TOOL_NAMES.GET_COLOR_INFO:
-        return await getColorInfo(args, userId);
-
-      case TOOL_NAMES.GENERATE_PALETTE:
-        return await generatePalette(args, userId);
-
-      case TOOL_NAMES.RANDOM_COLORS:
-        return await randomColors(args, userId);
-
-      case TOOL_NAMES.CONVERT_COLOR:
-        return await convertColor(args, userId);
-
-      case TOOL_NAMES.SAVE_FAVORITE_COLOR:
-        if (!userId) throw new Error('Authentication required');
-        return await saveFavoriteColor(args, userId);
-
-      case TOOL_NAMES.GET_FAVORITES:
-        if (!userId) throw new Error('Authentication required');
-        return await getFavorites(args, userId);
-
       case TOOL_NAMES.SEARCH_PROPERTIES:
         return await searchProperties(args, userId);
 

@@ -18,7 +18,7 @@ import {
   OPENAI_WIDGET_META,
   TOOL_NAMES,
 } from '../config/constants.js';
-import { MOVIE_POSTER_WIDGET_URL, MOVIE_LIST_WIDGET_URL, COLOR_WIDGET_URL, PROPERTY_WIDGET_URL } from '../utils/config.js';
+import { PROPERTY_WIDGET_URL } from '../utils/config.js';
 import { getToolDefinitions, callTool } from './tool-registry.js';
 
 /**
@@ -96,56 +96,6 @@ async function handleListResources() {
   console.log('📦 resources/list request received');
   const resources = [];
   
-  if (MOVIE_POSTER_WIDGET_URL) {
-    resources.push({
-      uri: WIDGET_CONFIG.poster.uri,
-      name: WIDGET_CONFIG.poster.name,
-      description: WIDGET_CONFIG.poster.description,
-      mimeType: WIDGET_CONFIG.poster.mimeType,
-      _meta: {
-        'openai/widgetAccessible': OPENAI_WIDGET_META.widgetAccessible,
-        'openai/resultCanProduceWidget': OPENAI_WIDGET_META.resultCanProduceWidget,
-      },
-    });
-  }
-  
-  if (MOVIE_LIST_WIDGET_URL) {
-    resources.push({
-      uri: WIDGET_CONFIG.list.uri,
-      name: WIDGET_CONFIG.list.name,
-      description: WIDGET_CONFIG.list.description,
-      mimeType: WIDGET_CONFIG.list.mimeType,
-      _meta: {
-        'openai/widgetAccessible': OPENAI_WIDGET_META.widgetAccessible,
-        'openai/resultCanProduceWidget': OPENAI_WIDGET_META.resultCanProduceWidget,
-      },
-    });
-    
-    resources.push({
-      uri: WIDGET_CONFIG.preferences.uri,
-      name: WIDGET_CONFIG.preferences.name,
-      description: WIDGET_CONFIG.preferences.description,
-      mimeType: WIDGET_CONFIG.preferences.mimeType,
-      _meta: {
-        'openai/widgetAccessible': OPENAI_WIDGET_META.widgetAccessible,
-        'openai/resultCanProduceWidget': OPENAI_WIDGET_META.resultCanProduceWidget,
-      },
-    });
-  }
-  
-  if (COLOR_WIDGET_URL) {
-    resources.push({
-      uri: WIDGET_CONFIG.color.uri,
-      name: WIDGET_CONFIG.color.name,
-      description: WIDGET_CONFIG.color.description,
-      mimeType: WIDGET_CONFIG.color.mimeType,
-      _meta: {
-        'openai/widgetAccessible': OPENAI_WIDGET_META.widgetAccessible,
-        'openai/resultCanProduceWidget': OPENAI_WIDGET_META.resultCanProduceWidget,
-      },
-    });
-  }
-  
   if (PROPERTY_WIDGET_URL) {
     resources.push({
       uri: WIDGET_CONFIG.property.uri,
@@ -172,47 +122,7 @@ async function handleReadResource(request: any) {
   let widgetUrl: string | null;
   let widgetDescription: string;
   
-  if (request.params.uri.startsWith(WIDGET_CONFIG.poster.uri)) {
-    if (!MOVIE_POSTER_WIDGET_URL) {
-      throw new Error('Movie poster widget URL not configured');
-    }
-    widgetUrl = MOVIE_POSTER_WIDGET_URL;
-    widgetDescription = WIDGET_CONFIG.poster.widgetDescription;
-    widgetHtml = `
-<div id="${WIDGET_CONFIG.poster.rootElementId}"></div>
-<script type="module" src="${MOVIE_POSTER_WIDGET_URL}"></script>
-    `.trim();
-  } else if (request.params.uri.startsWith(WIDGET_CONFIG.list.uri)) {
-    if (!MOVIE_LIST_WIDGET_URL) {
-      throw new Error('Movie list widget URL not configured');
-    }
-    widgetUrl = MOVIE_LIST_WIDGET_URL;
-    widgetDescription = WIDGET_CONFIG.list.widgetDescription;
-    widgetHtml = `
-<div id="${WIDGET_CONFIG.list.rootElementId}"></div>
-<script type="module" src="${MOVIE_LIST_WIDGET_URL}"></script>
-    `.trim();
-  } else if (request.params.uri.startsWith(WIDGET_CONFIG.preferences.uri)) {
-    if (!MOVIE_LIST_WIDGET_URL) {
-      throw new Error('Preferences widget URL not configured');
-    }
-    widgetUrl = `${MOVIE_LIST_WIDGET_URL.replace(/\/[^/]+$/, '')}/${WIDGET_CONFIG.preferences.componentFilename}`;
-    widgetDescription = WIDGET_CONFIG.preferences.widgetDescription;
-    widgetHtml = `
-<div id="${WIDGET_CONFIG.preferences.rootElementId}"></div>
-<script type="module" src="${widgetUrl}"></script>
-    `.trim();
-  } else if (request.params.uri.startsWith(WIDGET_CONFIG.color.uri)) {
-    if (!COLOR_WIDGET_URL) {
-      throw new Error('Color widget URL not configured');
-    }
-    widgetUrl = COLOR_WIDGET_URL;
-    widgetDescription = WIDGET_CONFIG.color.widgetDescription;
-    widgetHtml = `
-<div id="${WIDGET_CONFIG.color.rootElementId}"></div>
-<script type="module" src="${COLOR_WIDGET_URL}"></script>
-    `.trim();
-  } else if (request.params.uri.startsWith(WIDGET_CONFIG.property.uri)) {
+  if (request.params.uri.startsWith(WIDGET_CONFIG.property.uri)) {
     if (!PROPERTY_WIDGET_URL) {
       throw new Error('Property widget URL not configured');
     }

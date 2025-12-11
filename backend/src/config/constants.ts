@@ -18,14 +18,7 @@ export const EnvSchema = z.object({
   DATABASE_URL: z.string().url(),
   
   // External APIs
-  TMDB_API_KEY: z.string().optional(), // Optional - only needed for movie tools
   HOMEBUYME_API_KEY: z.string().optional(), // Optional - Homebuyme property API key
-  
-  // LLM Provider API Keys (at least one required)
-  // Models are fixed: GPT-5, Claude Sonnet 4.5, Gemini 2.5 Flash
-  OPENAI_API_KEY: z.string().optional(),
-  ANTHROPIC_API_KEY: z.string().optional(),
-  GEMINI_API_KEY: z.string().optional(),
   
   // Widgets (optional for local dev)
   MOVIE_POSTER_WIDGET_URL: z.string().optional(),
@@ -60,9 +53,9 @@ export function validateEnv(): Env {
 // ============================================================================
 
 export const SERVER_INFO = {
-  name: 'movie-mcp-server',
+  name: 'hbm-property-server',
   version: '1.0.0',
-  description: 'MCP server for managing movie watchlists with AI-powered recommendations',
+  description: 'MCP server for Homebuyme property discovery and management',
 } as const;
 
 export const PROTOCOL_VERSION = '2024-11-05' as const;
@@ -82,46 +75,6 @@ export const ENDPOINTS = {
 // ============================================================================
 
 export const WIDGET_CONFIG = {
-  poster: {
-    uri: 'ui://widget/movie-poster',
-    name: 'Movie Poster Widget',
-    description: 'Interactive movie poster widget for watchlist management',
-    mimeType: 'text/html+skybridge',
-    rootElementId: 'movie-poster-widget-root',
-    componentFilename: 'poster-component.js',
-    widgetDescription:
-      'Displays an interactive movie poster card with title, rating, cast, poster image, and action buttons for watchlist and marking as watched.',
-  },
-  list: {
-    uri: 'ui://widget/movie-list',
-    name: 'Movie List Widget',
-    description: 'Compact movie list widget for displaying multiple movies',
-    mimeType: 'text/html+skybridge',
-    rootElementId: 'movie-list-widget-root',
-    componentFilename: 'list-component.js',
-    widgetDescription:
-      'Displays a scrollable list of movies with compact poster thumbnails, titles, years, and action buttons for each movie.',
-  },
-  preferences: {
-    uri: 'ui://widget/preferences',
-    name: 'Preferences Widget',
-    description: 'User preferences widget with profile pictures for actors and directors',
-    mimeType: 'text/html+skybridge',
-    rootElementId: 'preferences-widget-root',
-    componentFilename: 'preferences-component.js',
-    widgetDescription:
-      'Displays user preferences in an organized layout with badges for genres and avatar cards for actors/directors with profile pictures from TMDB.',
-  },
-  color: {
-    uri: 'ui://widget/color-display',
-    name: 'Color Display Widget',
-    description: 'Interactive color palette widget for displaying colors',
-    mimeType: 'text/html+skybridge',
-    rootElementId: 'color-widget-root',
-    componentFilename: 'color-component.js',
-    widgetDescription:
-      'Displays color swatches with HEX, RGB, and HSL values, with copy-to-clipboard functionality.',
-  },
   property: {
     uri: 'ui://widget/property-display',
     name: 'Property Display Widget',
@@ -148,25 +101,7 @@ export const TRANSPORT_CONFIG = {
 // ============================================================================
 
 export const TOOL_NAMES = {
-  SEARCH_MOVIES: 'search_movies',
-  DISCOVER_MOVIES: 'discover_movies',
-  ADD_TO_WATCHLIST: 'add_to_watchlist',
-  REMOVE_FROM_WATCHLIST: 'remove_from_watchlist',
-  GET_WATCHLIST: 'get_watchlist',
-  MARK_AS_WATCHED: 'mark_as_watched',
-  MARK_AS_WATCHED_BATCH: 'mark_as_watched_batch',
-  GET_WATCHED_MOVIES: 'get_watched_movies',
-  SET_PREFERENCE: 'set_preference',
-  GET_PREFERENCES: 'get_preferences',
-  GET_RECOMMENDATIONS: 'get_recommendations',
-  GET_MOVIE_DETAILS: 'get_movie_details',
-  GET_COLOR_INFO: 'get_color_info',
-  GENERATE_PALETTE: 'generate_palette',
-  RANDOM_COLORS: 'random_colors',
-  CONVERT_COLOR: 'convert_color',
-  SAVE_FAVORITE_COLOR: 'save_favorite_color',
-  GET_FAVORITES: 'get_favorites',
-  // Property tools
+  // Property tools only
   SEARCH_PROPERTIES: 'search_properties',
   CALCULATE_SAVINGS: 'calculate_savings',
   GET_PROPERTY_DETAILS: 'get_property_details',
