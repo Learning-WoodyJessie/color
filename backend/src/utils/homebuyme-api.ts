@@ -75,7 +75,7 @@ export async function getStateProperties(
     throw new Error(`Homebuyme API error: ${response.status} ${response.statusText}`);
   }
 
-  const data = await response.json();
+  const data = await response.json() as PropertySearchResponse;
   console.log('[Homebuyme API] Received', data.count, 'properties');
   
   return data;
