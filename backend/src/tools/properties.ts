@@ -69,7 +69,7 @@ export async function searchProperties(input: unknown, _userId?: number) {
           .slice(0, 5)
           .map(
             (p) =>
-              `${p.property_address_display_name}, ${p.property_address.city} - ${formatPrice(p.property_price_with_hbm)}`
+              `${p.property_address_display_name}, ${p.property_address.city} - List: ${formatPrice(p.property_price)}${p.property_price_with_hbm > 0 ? `, HBM: ${formatPrice(p.property_price_with_hbm)}` : ''}`
           )
           .join('\n')}`;
 
@@ -317,8 +317,8 @@ ${property.property_address.city}, ${property.property_address.state}
 
 🏷 ${capitalize(property.status)} • ${titleCase(property.property_type)}
 💰 List Price: ${formatPrice(property.property_price)}
-✨ Homebuyme Price: ${formatPrice(property.property_price_with_hbm)}
-🎯 Total Savings: ${formatPrice(savings.totalSavings)}
+${property.property_price_with_hbm > 0 ? `✨ Homebuyme Price: ${formatPrice(property.property_price_with_hbm)}\n🎯 Price Savings: ${formatPrice(savings.priceDifference)}\n` : ''}💵 Est. Buyer-Agent Fee Avoided: ${formatPrice(savings.buyerAgentFee)}
+🎯 Total Potential Savings: ${formatPrice(savings.totalSavings)}
 
 ${vibe}
 

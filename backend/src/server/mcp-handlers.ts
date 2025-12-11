@@ -65,7 +65,15 @@ async function handleListTools() {
   const tools = getToolDefinitions();
   console.log(`📋 Returning ${tools.length} tools`);
   
-  return { tools };
+  // Ensure _meta is preserved for each tool
+  const toolsWithMeta = tools.map(tool => {
+    if (tool._meta) {
+      console.log(`📋 Tool ${tool.name} has metadata:`, JSON.stringify(tool._meta));
+    }
+    return tool;
+  });
+  
+  return { tools: toolsWithMeta };
 }
 
 /**

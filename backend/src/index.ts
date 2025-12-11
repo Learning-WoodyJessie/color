@@ -13,6 +13,7 @@ import { healthCheckHandler } from './routes/health.js';
 import { rootHandler } from './routes/root.js';
 import { registerMCPHandlers } from './server/mcp-handlers.js';
 import adminRouter from './routes/admin.js';
+import apiRouter from './routes/api.js';
 import {
   createTransport,
   registerMCPEndpoint,
@@ -45,6 +46,7 @@ function createApp(): express.Application {
   app.get(ENDPOINTS.health, healthCheckHandler);
   app.get(ENDPOINTS.root, rootHandler);
   app.use('/admin', adminRouter);
+  app.use('/api', apiRouter);
 
   // Error handling middleware
   app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

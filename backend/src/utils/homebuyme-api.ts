@@ -87,20 +87,24 @@ export async function getStateProperties(
 export function calculateSavings(property: Property) {
   const listPrice = property.property_price;
   const hbmPrice = property.property_price_with_hbm;
-  const priceDifference = listPrice - hbmPrice;
+  
+  // If HBM price is 0 or missing, only calculate buyer-agent fee savings
+  const hasHbmPrice = hbmPrice > 0;
+  const priceDifference = hasHbmPrice ? listPrice - hbmPrice : 0;
   
   // Typical buyer-agent commission is 3%
   const buyerAgentFee = listPrice * 0.03;
   
-  // Total savings = price difference + avoided agent fee
+  // Total savings = price difference (if available) + avoided agent fee
   const totalSavings = priceDifference + buyerAgentFee;
   
   return {
     listPrice,
-    hbmPrice,
+    hbmPrice: hasHbmPrice ? hbmPrice : 0,
     priceDifference,
     buyerAgentFee,
     totalSavings,
+    hasHbmPrice, // Flag to indicate if HBM price is available
   };
 }
 

@@ -221,18 +221,23 @@ function PropertyCard({ property }: PropertyCardProps) {
               {formatPrice(property.property_price)}
             </span>
           </div>
-          <div className="flex justify-between items-center" style={{ color: '#4CAF50' }}>
-            <span className="text-sm font-semibold">✨ HomeBuyMe Price:</span>
-            <span className="font-bold">
-              {formatPrice(property.property_price_with_hbm)}
-            </span>
-          </div>
-          <div className="flex justify-between items-center" style={{ color: '#1A3A6D' }}>
-            <span className="text-sm font-semibold">🎯 Savings:</span>
-            <span className="font-bold">
-              ≈{formatPrice(property.savings.priceDifference)}
-            </span>
-          </div>
+          {/* Only show HomeBuyMe Price if it's available and > 0 */}
+          {property.property_price_with_hbm > 0 && (
+            <>
+              <div className="flex justify-between items-center" style={{ color: '#4CAF50' }}>
+                <span className="text-sm font-semibold">✨ HomeBuyMe Price:</span>
+                <span className="font-bold">
+                  {formatPrice(property.property_price_with_hbm)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center" style={{ color: '#1A3A6D' }}>
+                <span className="text-sm font-semibold">🎯 Savings:</span>
+                <span className="font-bold">
+                  ≈{formatPrice(property.savings.priceDifference)}
+                </span>
+              </div>
+            </>
+          )}
           <div className="flex justify-between items-center">
             <span className="text-xs opacity-75">Est. Buyer-Agent Fee You Avoid:</span>
             <span className="text-sm font-semibold">

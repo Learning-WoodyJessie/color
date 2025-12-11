@@ -1,0 +1,558 @@
+openapi: 3.1.0
+info:
+  title: HomeBuyMe Property API
+  version: 1.0.0
+  description: |
+    API for searching HomeBuyMe properties, calculating savings, and managing favorites.
+    This API provides access to property listings in supported states (currently WA and CA)
+    with savings calculations, neighborhood information, and favorite property management.
+
+servers:
+  - url: https://your-api-domain.com
+    description: Production server
+  - url: http://localhost:3001
+    description: Local development server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/properties/search:
+    get:
+      operationId: searchProperties
+      summary: Search properties by state with optional filters
+      description: |
+        Search for HomeBuyMe properties by state code. Supports optional filtering by city,
+        minimum price, maximum price, and pagination. Returns properties with savings calculations,
+        neighborhood information, and property details.
+      tags:
+        - Properties
+      parameters:
+        - name: state
+          in: query
+          required: true
+          description: Two-letter state code (e.g., WA, CA)
+          schema:
+            type: string
+            pattern: '^[A-Z]{2}$'
+            example: WA
+        - name: city
+          in: query
+          required: false
+          description: Filter by city name
+          schema:
+            type: string
+            example: Seattle
+        - name: minPrice
+          in: query
+          required: false
+          description: Minimum price filter
+          schema:
+            type: number
+            minimum: 0
+            example: 500000
+        - name: maxPrice
+          in: query
+          required: false
+          description: Maximum price filter
+          schema:
+            type: number
+            minimum: 0
+            example: 2000000
+        - name: page
+          in: query
+          required: false
+          description: Page number (default: 1)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: perPage
+          in: query
+          required: false
+          description: Results per page (default: 20, max: 100)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Successful response with property listings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertySearchResponse'
+        '400':
+          description: Bad request (invalid parameters)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (missing or invalid API key)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/savings/calculate:
+    post:
+      operationId: calculateSavings
+      summary: Calculate potential savings on a home purchase
+      description: |
+        Calculate potential savings with HomeBuyMe on a home purchase. Provides savings from
+        avoiding buyer-agent fees (≈3%), information about HomeBuyMe price advantages, service
+        plan options (Basic $499, Premium $899), and links to learn more.
+      tags:
+        - Savings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - price
+              properties:
+                price:
+                  type: number
+                  description: Home price to calculate savings for (e.g., 1000000 for $1M home)
+                  minimum: 0
+                  example: 1000000
+      responses:
+        '200':
+          description: Successful savings calculation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsResponse'
+        '400':
+          description: Bad request (invalid price)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (missing or invalid API key)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/properties/{propertyId}:
+    get:
+      operationId: getPropertyDetails
+      summary: Get detailed information about a specific property
+      description: |
+        Retrieve detailed information about a specific property including savings breakdown,
+        neighborhood information, property features, and offer availability.
+      tags:
+        - Properties
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          description: Property ID from search results
+          schema:
+            type: string
+            example: "prop_12345"
+        - name: state
+          in: query
+          required: true
+          description: Two-letter state code where the property is located
+          schema:
+            type: string
+            pattern: '^[A-Z]{2}$'
+            example: WA
+      responses:
+        '200':
+          description: Successful response with property details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyDetailsResponse'
+        '400':
+          description: Bad request (invalid parameters)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Property not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (missing or invalid API key)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/favorites:
+    get:
+      operationId: getFavoriteProperties
+      summary: Get user's saved favorite properties
+      description: |
+        Retrieve all properties saved to the user's favorites list with optional notes.
+      tags:
+        - Favorites
+      responses:
+        '200':
+          description: Successful response with favorite properties
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FavoritePropertiesResponse'
+        '401':
+          description: Unauthorized (missing or invalid API key)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: saveFavoriteProperty
+      summary: Save a property to favorites
+      description: |
+        Save a property to the user's favorites list with optional notes.
+      tags:
+        - Favorites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - propertyId
+                - state
+              properties:
+                propertyId:
+                  type: string
+                  description: Property ID from search results
+                  example: "prop_12345"
+                state:
+                  type: string
+                  description: Two-letter state code
+                  pattern: '^[A-Z]{2}$'
+                  example: WA
+                notes:
+                  type: string
+                  description: Optional notes about the property
+                  example: "Great location, near schools"
+      responses:
+        '200':
+          description: Property saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaveFavoriteResponse'
+        '400':
+          description: Bad request (invalid parameters)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (missing or invalid API key)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+      description: |
+        API key authentication. Include your API key in the Authorization header as:
+        `Authorization: Bearer YOUR_API_KEY`
+        
+        You can obtain an API key by registering a user account through the admin endpoints
+        or by using the create-user script.
+
+  schemas:
+    PropertyAddress:
+      type: object
+      properties:
+        property_address:
+          type: string
+          example: "123 Main St"
+        city:
+          type: string
+          example: "Seattle"
+        county:
+          type: string
+          example: "King County"
+        state:
+          type: string
+          example: "WA"
+        zip:
+          type: string
+          nullable: true
+          example: "98101"
+
+    Savings:
+      type: object
+      properties:
+        listPrice:
+          type: number
+          description: Original list price
+          example: 1000000
+        hbmPrice:
+          type: number
+          description: HomeBuyMe price
+          example: 980000
+        priceDifference:
+          type: number
+          description: Price difference (listPrice - hbmPrice)
+          example: 20000
+        buyerAgentFee:
+          type: number
+          description: Buyer's agent fee avoided (3% of list price)
+          example: 30000
+        totalSavings:
+          type: number
+          description: Total estimated savings
+          example: 50000
+
+    Property:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "prop_12345"
+        partner_alias:
+          type: string
+          example: "partner1"
+        partner_site_alias:
+          type: string
+          example: "site1"
+        partner_site_property_website:
+          type: string
+          format: uri
+          example: "https://example.com/property/12345"
+        property_address_display_name:
+          type: string
+          example: "123 Main St, Seattle, WA"
+        property_address:
+          $ref: '#/components/schemas/PropertyAddress'
+        property_price:
+          type: number
+          description: Original list price
+          example: 1000000
+        property_price_with_hbm:
+          type: number
+          description: HomeBuyMe price
+          example: 980000
+        property_type:
+          type: string
+          example: "Single Family"
+        property_model:
+          type: string
+          nullable: true
+          example: "Modern"
+        status:
+          type: string
+          example: "Active"
+        property_image:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://example.com/images/prop12345.jpg"
+        bedrooms:
+          type: integer
+          nullable: true
+          example: 3
+        bathrooms:
+          type: number
+          nullable: true
+          example: 2.5
+        sqft:
+          type: integer
+          nullable: true
+          example: 2500
+        savings:
+          $ref: '#/components/schemas/Savings'
+        vibe:
+          type: string
+          description: Generated neighborhood vibe description
+          example: "Family-friendly neighborhood with great schools"
+        supportsOffers:
+          type: boolean
+          description: Whether full offers are supported in this state
+          example: true
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        per_page:
+          type: integer
+          example: 20
+        total_items:
+          type: integer
+          example: 150
+        total_pages:
+          type: integer
+          example: 8
+        has_next:
+          type: boolean
+          example: true
+        has_prev:
+          type: boolean
+          example: false
+
+    PropertySearchResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/Property'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        expansionMessage:
+          type: string
+          nullable: true
+          description: Message about service expansion to other states
+          example: "HomeBuyMe is currently available in Washington and California"
+
+    PropertyDetailsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/Property'
+          maxItems: 1
+
+    SavingsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        listPrice:
+          type: number
+          example: 1000000
+        buyerAgentFee:
+          type: number
+          example: 30000
+        plans:
+          type: object
+          properties:
+            basic:
+              type: object
+              properties:
+                price:
+                  type: number
+                  example: 499
+                description:
+                  type: string
+                  example: "Guided offer + attorney review + eSign"
+            premium:
+              type: object
+              properties:
+                price:
+                  type: number
+                  example: 899
+                description:
+                  type: string
+                  example: "Priority review, live consults, and counter-offer support"
+        formattedSavings:
+          type: object
+          properties:
+            buyerAgentFee:
+              type: string
+              example: "$30,000"
+
+    FavoritePropertiesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        properties:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/Property'
+              - type: object
+                properties:
+                  notes:
+                    type: string
+                    nullable: true
+                    example: "Great location, near schools"
+
+    SaveFavoriteResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        property:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "prop_12345"
+            address:
+              type: string
+              example: "123 Main St, Seattle, WA"
+            city:
+              type: string
+              example: "Seattle"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Invalid state code. Must be 2 letters."
+
