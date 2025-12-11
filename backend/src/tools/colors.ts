@@ -95,6 +95,16 @@ export const getColorInfoToolDefinition = {
     },
     required: ['color'],
   },
+  // Add widget metadata to tool definition (required for OpenAI Apps SDK)
+  ...(COLOR_WIDGET_URL && {
+    _meta: {
+      'openai/outputTemplate': 'ui://widget/color-display',
+      'openai/widgetAccessible': true,
+      'openai/resultCanProduceWidget': true,
+      'openai/toolInvocation/invoking': 'Getting color info...',
+      'openai/toolInvocation/invoked': 'Color info retrieved',
+    },
+  }),
 };
 
 // ============================================================================
@@ -213,6 +223,16 @@ export const generatePaletteToolDefinition = {
     },
     required: ['baseColor', 'type'],
   },
+  // Add widget metadata to tool definition (required for OpenAI Apps SDK)
+  ...(COLOR_WIDGET_URL && {
+    _meta: {
+      'openai/outputTemplate': 'ui://widget/color-display',
+      'openai/widgetAccessible': true,
+      'openai/resultCanProduceWidget': true,
+      'openai/toolInvocation/invoking': 'Generating palette...',
+      'openai/toolInvocation/invoked': 'Palette generated',
+    },
+  }),
 };
 
 // ============================================================================
@@ -295,6 +315,16 @@ export const randomColorsToolDefinition = {
       },
     },
   },
+  // Add widget metadata to tool definition (required for OpenAI Apps SDK)
+  ...(COLOR_WIDGET_URL && {
+    _meta: {
+      'openai/outputTemplate': 'ui://widget/color-display',
+      'openai/widgetAccessible': true,
+      'openai/resultCanProduceWidget': true,
+      'openai/toolInvocation/invoking': 'Generating random colors...',
+      'openai/toolInvocation/invoked': 'Colors generated',
+    },
+  }),
 };
 
 // ============================================================================
@@ -554,4 +584,14 @@ export const getFavoritesToolDefinition = {
     type: 'object',
     properties: {},
   },
+  // Add widget metadata to tool definition (required for OpenAI Apps SDK)
+  ...(COLOR_WIDGET_URL && {
+    _meta: {
+      'openai/outputTemplate': 'ui://widget/color-display',
+      'openai/widgetAccessible': true,
+      'openai/resultCanProduceWidget': true,
+      'openai/toolInvocation/invoking': 'Loading favorites...',
+      'openai/toolInvocation/invoked': 'Favorites loaded',
+    },
+  }),
 };
