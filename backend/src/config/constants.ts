@@ -18,7 +18,7 @@ export const EnvSchema = z.object({
   DATABASE_URL: z.string().url(),
   
   // External APIs
-  TMDB_API_KEY: z.string().min(1, 'TMDB API key is required'),
+  TMDB_API_KEY: z.string().optional(), // Optional - only needed for movie tools
   
   // LLM Provider API Keys (at least one required)
   // Models are fixed: GPT-5, Claude Sonnet 4.5, Gemini 2.5 Flash
@@ -111,6 +111,16 @@ export const WIDGET_CONFIG = {
     widgetDescription:
       'Displays user preferences in an organized layout with badges for genres and avatar cards for actors/directors with profile pictures from TMDB.',
   },
+  color: {
+    uri: 'ui://widget/color-display',
+    name: 'Color Display Widget',
+    description: 'Interactive color palette widget for displaying colors',
+    mimeType: 'text/html+skybridge',
+    rootElementId: 'color-widget-root',
+    componentFilename: 'color-component.js',
+    widgetDescription:
+      'Displays color swatches with HEX, RGB, and HSL values, with copy-to-clipboard functionality.',
+  },
 } as const;
 
 // ============================================================================
@@ -139,6 +149,12 @@ export const TOOL_NAMES = {
   GET_PREFERENCES: 'get_preferences',
   GET_RECOMMENDATIONS: 'get_recommendations',
   GET_MOVIE_DETAILS: 'get_movie_details',
+  GET_COLOR_INFO: 'get_color_info',
+  GENERATE_PALETTE: 'generate_palette',
+  RANDOM_COLORS: 'random_colors',
+  CONVERT_COLOR: 'convert_color',
+  SAVE_FAVORITE_COLOR: 'save_favorite_color',
+  GET_FAVORITES: 'get_favorites',
 } as const;
 
 // Type-safe tool names

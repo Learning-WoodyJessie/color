@@ -83,6 +83,10 @@ const normalizedListUrl = ensureComponentPath(
   normalizedBaseUrl,
   WIDGET_CONFIG.list.componentFilename
 );
+const normalizedColorUrl = ensureComponentPath(
+  normalizedBaseUrl,
+  WIDGET_CONFIG.color.componentFilename
+);
 
 if (rawWidgetHost && !normalizedPosterUrl) {
   console.error(
@@ -94,6 +98,7 @@ if (rawWidgetHost && !normalizedPosterUrl) {
 // Export normalized URLs
 export const MOVIE_POSTER_WIDGET_URL = normalizedPosterUrl;
 export const MOVIE_LIST_WIDGET_URL = normalizedListUrl;
+export const COLOR_WIDGET_URL = normalizedColorUrl;
 
 /**
  * Utility function to resolve Render.com host URLs

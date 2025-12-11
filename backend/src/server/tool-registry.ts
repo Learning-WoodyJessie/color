@@ -42,6 +42,20 @@ import {
   getMovieDetails as getMovieDetailsTool,
   getMovieDetailsToolDefinition,
 } from '../tools/movieDetails.js';
+import {
+  getColorInfo,
+  getColorInfoToolDefinition,
+  generatePalette,
+  generatePaletteToolDefinition,
+  randomColors,
+  randomColorsToolDefinition,
+  convertColor,
+  convertColorToolDefinition,
+  saveFavoriteColor,
+  saveFavoriteColorToolDefinition,
+  getFavorites,
+  getFavoritesToolDefinition,
+} from '../tools/colors.js';
 
 /**
  * Check if any LLM API key is available
@@ -99,6 +113,13 @@ export function getToolDefinitions() {
     getPreferencesToolDefinition,
     removePreferenceItemToolDefinition,
     getMovieDetailsToolDefinition,
+    // Color tools
+    getColorInfoToolDefinition,
+    generatePaletteToolDefinition,
+    randomColorsToolDefinition,
+    convertColorToolDefinition,
+    saveFavoriteColorToolDefinition,
+    getFavoritesToolDefinition,
   ];
 
   // Only include recommendations tool if LLM is configured
@@ -205,6 +226,26 @@ export async function callTool(name: string, args: any, userId?: number): Promis
             isError: false,
           };
         }
+
+      case TOOL_NAMES.GET_COLOR_INFO:
+        return await getColorInfo(args, userId);
+
+      case TOOL_NAMES.GENERATE_PALETTE:
+        return await generatePalette(args, userId);
+
+      case TOOL_NAMES.RANDOM_COLORS:
+        return await randomColors(args, userId);
+
+      case TOOL_NAMES.CONVERT_COLOR:
+        return await convertColor(args, userId);
+
+      case TOOL_NAMES.SAVE_FAVORITE_COLOR:
+        if (!userId) throw new Error('Authentication required');
+        return await saveFavoriteColor(args, userId);
+
+      case TOOL_NAMES.GET_FAVORITES:
+        if (!userId) throw new Error('Authentication required');
+        return await getFavorites(args, userId);
 
       default:
         return {

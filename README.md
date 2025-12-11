@@ -1,8 +1,8 @@
-# MCP: Movie Context Provider
+# MCP: Movie & Color Context Provider
 
 A **demo OpenAI App** built with the **[OpenAI Apps SDK](https://developers.openai.com/apps-sdk)**, that's ready to deploy on **[Render](https://render.com)**.  
 
-Manage your personal movie watchlist, get AI-powered recommendations, and interact with beautiful widgets directly in ChatGPT. Movie data powered by **[TMDB](https://www.themoviedb.org)**. Features multi-provider LLM support and PostgreSQL for data persistence.
+Manage your personal movie watchlist, get AI-powered recommendations, **AND** work with colors, palettes, and color conversion tools—all integrated into ChatGPT. Movie data powered by **[TMDB](https://www.themoviedb.org)**. Features multi-provider LLM support and PostgreSQL for data persistence.
 
 [![OpenAI Apps SDK](https://img.shields.io/badge/OpenAI-Apps%20SDK-412991?logo=openai)](https://developers.openai.com/apps-sdk)
 [![Render](https://img.shields.io/badge/Deploy-Render-9333ea?logo=render)](https://render.com)
@@ -13,7 +13,7 @@ Manage your personal movie watchlist, get AI-powered recommendations, and intera
 
 ## What is this?
 
-This demo implements a movie discovery app with watchlists, ratings, and AI recommendations—fully integrated into ChatGPT.
+This demo implements a **movie discovery app** with watchlists, ratings, and AI recommendations, **PLUS a color tool** for working with colors, palettes, and conversions—all fully integrated into ChatGPT.
 
 https://github.com/user-attachments/assets/82e33bd5-8a5e-4f03-b8df-44c352dc1ded
 
@@ -44,6 +44,8 @@ https://github.com/user-attachments/assets/82e33bd5-8a5e-4f03-b8df-44c352dc1ded
 
 ### MCP tools
 
+#### 🎬 Movie Tools
+
 **Search & Discovery**
 - `search_movies` - Search for one or multiple movies by title
 - `discover_movies` - Advanced filtering (director, actor, genre, year, rating)
@@ -61,17 +63,40 @@ https://github.com/user-attachments/assets/82e33bd5-8a5e-4f03-b8df-44c352dc1ded
 **AI Features** (requires LLM API key)
 - `get_recommendations` - Personalized movie suggestions based on your watch history and preferences
 
+#### 🎨 Color Tools
+
+**Color Information**
+- `get_color_info` - Get detailed information about any color (HEX, RGB, HSL, color name)
+- `convert_color` - Convert between color formats (HEX ↔ RGB ↔ HSL)
+
+**Palette Generation**
+- `generate_palette` - Generate color palettes:
+  - Complementary (2 colors)
+  - Analogous (3 colors)
+  - Triadic (3 colors)
+  - Monochromatic (5 colors with varying lightness)
+  - Tetradic/Square (4 colors)
+- `random_colors` - Generate 1-10 random colors
+
+**Favorites**
+- `save_favorite_color` - Save colors to your personal favorites
+- `get_favorites` - View your saved favorite colors
+
 > All tools are implemented in [`backend/src/tools/`](backend/src/tools/)
 > 
-> **Note:** Only the `get_recommendations` tool requires an LLM API key. All other features work with just the TMDB API key.
+> **Note:** Only the `get_recommendations` tool requires an LLM API key. All other features work with just the TMDB API key (for movies) or no API key (for colors).
 
 ### Widgets
 
 Interactive UI components rendered in ChatGPT:
 
+**Movie Widgets**
 - **Movie Poster** - Full details view with cast, backdrop, and quick actions (add to watchlist, mark watched)
 - **Movie List** - Sortable grid for search results and watchlists with inline actions
 - **Preferences** - Visual editor for favorite genres, actors, directors (helps AI recommendations)
+
+**Color Widget**
+- **Color Display** - Beautiful color swatches showing HEX, RGB, and HSL values with one-click copy-to-clipboard and save-to-favorites functionality
 
 ### Multi-provider AI
 
@@ -99,11 +124,12 @@ This app is designed to be deployed to [Render](https://render.com) with zero co
 
 Get your API keys ready (you'll add them during deployment):
 
-- **TMDB API Key** (required, free):
+- **TMDB API Key** (optional, free - only needed for movie features):
   1. Create account at [themoviedb.org](https://www.themoviedb.org/signup)
   2. Go to [Settings → API](https://www.themoviedb.org/settings/api)
   3. Request an API key (choose "Developer" for personal use)
   4. Copy your "API Key (v3 auth)" - this is what you'll use
+  5. Note: Color tools work without this key!
 
 - **LLM API Key** (optional, only for the recommendation tool):
   - [OpenAI API Key](https://platform.openai.com/api-keys) (paid) - for GPT-5
@@ -130,14 +156,14 @@ When prompted, add these **secret** environment variables:
 
 | Variable | Required? | Description |
 |----------|-----------|-------------|
-| `TMDB_API_KEY` | ✅ Required | Your TMDB API key (for all movie data) |
+| `TMDB_API_KEY` | 🎬 Optional | Your TMDB API key (only for movie features) |
 | `OPENAI_API_KEY` | 🤖 Optional* | OpenAI API key (GPT-5 for recommendations) |
 | `ANTHROPIC_API_KEY` | 🤖 Optional* | Anthropic API key (Claude Sonnet 4.5 for recommendations) |
 | `GEMINI_API_KEY` | 🤖 Optional* | Google Gemini API key (2.5 Flash for recommendations) |
 | `ADMIN_API_KEY` | ✨ Recommended | Your personal MCP access key (auto-generated if not set) |
 | `ADMIN_EMAIL` | Optional | Admin user email (defaults to `admin@localhost`) |
 
-> **\*At least one LLM API key is required** if you want to use the `get_recommendations` tool. All other features (search, watchlist, preferences, etc.) work without any LLM.
+> **Note:** Color tools work without any API keys! Movie tools require `TMDB_API_KEY`. The `get_recommendations` tool requires at least one LLM API key.
 
 > **Free tier note:** The provided Render blueprint is preconfigured so every service runs on free plans (the managed Postgres instance is free for the first 30 days). Free services spin down when idle, so the first request after a long pause may be slow or occasionally time out. Once instance is active, everything behaves normally. If you want production-like responsiveness, bump the services to Starter or Standard plans.
 

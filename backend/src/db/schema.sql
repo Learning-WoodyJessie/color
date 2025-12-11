@@ -56,6 +56,24 @@ CREATE TABLE IF NOT EXISTS preferences (
   UNIQUE(user_id, key)
 );
 
+-- User-specific favorite colors
+-- Stores colors users have saved to their favorites
+CREATE TABLE IF NOT EXISTS favorite_colors (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  hex TEXT NOT NULL,
+  rgb_r INTEGER NOT NULL CHECK (rgb_r BETWEEN 0 AND 255),
+  rgb_g INTEGER NOT NULL CHECK (rgb_g BETWEEN 0 AND 255),
+  rgb_b INTEGER NOT NULL CHECK (rgb_b BETWEEN 0 AND 255),
+  hsl_h INTEGER NOT NULL CHECK (hsl_h BETWEEN 0 AND 360),
+  hsl_s INTEGER NOT NULL CHECK (hsl_s BETWEEN 0 AND 100),
+  hsl_l INTEGER NOT NULL CHECK (hsl_l BETWEEN 0 AND 100),
+  name TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, hex)
+);
+
 -- Indexes for performance optimization
 CREATE INDEX IF NOT EXISTS idx_watchlist_user ON watchlist(user_id);
 CREATE INDEX IF NOT EXISTS idx_watchlist_movie ON watchlist(movie_id);
@@ -64,6 +82,8 @@ CREATE INDEX IF NOT EXISTS idx_watched_movie ON watched(movie_id);
 CREATE INDEX IF NOT EXISTS idx_watched_rating ON watched(rating);
 CREATE INDEX IF NOT EXISTS idx_preferences_user ON preferences(user_id);
 CREATE INDEX IF NOT EXISTS idx_users_api_key ON users(api_key);
+CREATE INDEX IF NOT EXISTS idx_favorite_colors_user ON favorite_colors(user_id);
+CREATE INDEX IF NOT EXISTS idx_favorite_colors_hex ON favorite_colors(hex);
 
 -- Insert a default demo user for testing
 -- In production, users should be created through a proper registration flow
